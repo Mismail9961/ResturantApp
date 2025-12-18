@@ -1,13 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-import { Slot } from "expo-router";
-import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { useRouter } from "expo-router";
+import { View, Text, StyleSheet, Animated, Dimensions, Image } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-function FoodgoLoadingScreen() {
+export default function FoodgoLoading() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
   const bounce1 = useRef(new Animated.Value(0)).current;
   const bounce2 = useRef(new Animated.Value(0)).current;
   const bounce3 = useRef(new Animated.Value(0)).current;
@@ -16,12 +14,20 @@ function FoodgoLoadingScreen() {
     // Fade in logo
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 1500,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+
+    // Slide up burgers
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 1000,
+      delay: 300,
       useNativeDriver: true,
     }).start();
 
     // Bouncing dots animation
-    const createBounceAnimation = (animValue: Animated.Value, delay: number) => {
+    const createBounceAnimation = (animValue, delay) => {
       return Animated.loop(
         Animated.sequence([
           Animated.timing(animValue, {
@@ -42,6 +48,14 @@ function FoodgoLoadingScreen() {
     createBounceAnimation(bounce1, 0).start();
     createBounceAnimation(bounce2, 150).start();
     createBounceAnimation(bounce3, 300).start();
+
+    // Navigate to main app after 3 seconds
+    const timer = setTimeout(() => {
+      console.log('Loading complete - navigate to main app');
+      // Add your navigation logic here
+    }, 9000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -49,6 +63,29 @@ function FoodgoLoadingScreen() {
       {/* Logo */}
       <Animated.View style={[styles.logoContainer, { opacity: fadeAnim }]}>
         <Text style={styles.logo}>Foodgo</Text>
+      </Animated.View>
+
+      {/* Burgers */}
+      <Animated.View 
+        style={[
+          styles.burgersContainer, 
+          { transform: [{ translateY: slideAnim }] }
+        ]}
+      >
+        <View style={styles.burgerLeft}>
+          <Image 
+            source={require('@/assets/images/image1.png')} 
+            style={styles.tripleBurgerImage}
+            resizeMode="contain"
+          />
+        </View>
+        <View style={styles.burgerRight}>
+          <Image 
+            source={require('@/assets/images/image2.png')} 
+            style={styles.doubleBurgerImage}
+            resizeMode="contain"
+          />
+        </View>
       </Animated.View>
 
       {/* Loading Dots */}
@@ -61,35 +98,6 @@ function FoodgoLoadingScreen() {
   );
 }
 
-function AppLayout() {
-  const { user, isLoadingUser } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (isLoadingUser) return;
-
-    if (!user) {
-      router.replace("/auth");
-    } else {
-      router.replace("/(tabs)");
-    }
-  }, [user, isLoadingUser, router]);
-
-  if (isLoadingUser) {
-    return <FoodgoLoadingScreen />;
-  }
-
-  return <Slot />;
-}
-
-export default function RootLayout() {
-  return (
-    <AuthProvider>
-      <AppLayout />
-    </AuthProvider>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -97,7 +105,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     position: 'absolute',
-    top: height * 0.45,
+    top: height * 0.4,
     width: width,
     alignItems: 'center',
   },
@@ -134,7 +142,7 @@ const styles = StyleSheet.create({
   },
   loadingDots: {
     position: 'absolute',
-    bottom: height * 0.3,
+    bottom: 40,
     width: width,
     flexDirection: 'row',
     justifyContent: 'center',

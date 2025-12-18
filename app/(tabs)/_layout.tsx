@@ -13,7 +13,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: "#C2B89B", // soft beige
+          backgroundColor: "#EF2A39", // soft beige
           height: 65,
           borderTopWidth: 0,
           borderTopLeftRadius: 25,
@@ -37,7 +37,7 @@ export default function TabsLayout() {
               <Entypo
                 name="home"
                 size={22}
-                color={focused ? "#C2B89B" : "#fff"}
+                color={focused ? "#EF2A39" : "#fff"}
               />
             </View>
           ),
@@ -52,7 +52,7 @@ export default function TabsLayout() {
               <FontAwesome
                 name="shopping-cart"
                 size={22}
-                color={focused ? "#C2B89B" : "#fff"}
+                color={focused ? "#EF2A39" : "#fff"}
               />
             </View>
           ),
@@ -67,7 +67,7 @@ export default function TabsLayout() {
               <Ionicons
                 name="heart"
                 size={22}
-                color={focused ? "#C2B89B" : "#fff"}
+                color={focused ? "#EF2A39" : "#fff"}
               />
             </View>
           ),
@@ -81,7 +81,7 @@ export default function TabsLayout() {
               <AntDesign
                 name="user"
                 size={22}
-                color={focused ? "#C2B89B" : "#fff"}
+                color={focused ? "#EF2A39" : "#fff"}
               />
             </View>
           ),

@@ -1,215 +1,312 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import React, { useRef, useState } from "react";
+import React, { useState } from 'react';
 import {
-  Animated,
-  Dimensions,
-  Image,
-  ScrollView,
-  StyleSheet,
+  View,
   Text,
+  StyleSheet,
+  ScrollView,
   TextInput,
   TouchableOpacity,
-  View,
-} from "react-native";
+  Image,
+  Dimensions,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-const { width } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
-export default function Index() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const slideAnim = useRef(new Animated.Value(-width)).current;
-  const router = useRouter();
+export default function FoodgoApp() {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [favorites, setFavorites] = useState(new Set());
 
-  const toggleMenu = () => {
-    Animated.timing(slideAnim, {
-      toValue: menuOpen ? -width : 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-    setMenuOpen(!menuOpen);
-  };
+  const categories = ['All', 'Combos', 'Sliders', 'Chicken'];
 
-  const menuItems = [
-    { label: "Home", icon: "home-outline", route: "/" },
-    { label: "Shop", icon: "bag-handle-outline", route: "/shop" },
-    { label: "Profile", icon: "person-outline", route: "/profile" },
-    { label: "Wishlist", icon: "heart-outline", route: "/wishlist" },
-    { label: "Auth", icon: "log-in-outline", route: "/auth" },
+  const foodItems = [
+    {
+      id: 1,
+      name: 'Cheeseburger',
+      description: "Wendy's Burger",
+      rating: 4.9,
+      image: require('../../assets/images/image6.png'),
+    },
+    {
+      id: 2,
+      name: 'Hamburger',
+      description: 'Veggie Burger',
+      rating: 4.8,
+      image: require('../../assets/images/image6.png'),
+    },
+    {
+      id: 3,
+      name: 'Hamburger',
+      description: 'Chicken Burger',
+      rating: 4.6,
+      image: require('../../assets/images/image6.png'),
+    },
+    {
+      id: 4,
+      name: 'Hamburger',
+      description: 'Fried Chicken Burger',
+      rating: 4.5,
+      image: require('../../assets/images/image6.png'),
+    },
   ];
 
+  const toggleFavorite = (id: number) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(id)) {
+      newFavorites.delete(id);
+    } else {
+      newFavorites.add(id);
+    }
+    setFavorites(newFavorites);
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      {/* Sidebar Overlay */}
-      {menuOpen && (
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={toggleMenu}
-          style={styles.overlay}
-        />
-      )}
-
-      {/* Sidebar */}
-      <Animated.View
-        style={[styles.sidebar, { transform: [{ translateX: slideAnim }] }]}
-      >
-        {menuItems.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.menuItem}
-            onPress={() => {
-              toggleMenu();
-              router.push(item.route as any);
-            }}
-          >
-            <Ionicons name={item.icon as any} size={22} color="#fff" />
-            <Text style={styles.menuLabel}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </Animated.View>
-
-      {/* Main Content */}
-      <ScrollView style={styles.container}>
+    <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={toggleMenu}>
-            <Ionicons name="menu" size={28} color="#6B5F4A" />
-          </TouchableOpacity>
-          <Image
-            source={require("../../assets/images/logo.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <View style={{ width: 28 }} />
+          <View style={styles.headerLeft}>
+            <Text style={styles.logo}>Foodgo</Text>
+            <Text style={styles.tagline}>Order your favourite food!</Text>
+          </View>
+          <View style={styles.profilePic}>
+            {/* Replace with actual profile image */}
+            <View style={styles.profilePlaceholder} />
+          </View>
         </View>
 
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <TextInput placeholder="Search" style={styles.searchInput} />
-          <Ionicons name="search" size={22} color="#6B5F4A" />
+        <View style={styles.searchRow}>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search-outline" size={20} color="#666" />
+            <TextInput
+              placeholder="Search"
+              placeholderTextColor="#999"
+              style={styles.searchInput}
+            />
+          </View>
+          <TouchableOpacity style={styles.menuButton}>
+            <Ionicons name="menu" size={24} color="#fff" />
+          </TouchableOpacity>
         </View>
 
-        {/* Hero Image */}
-        <Image
-          source={require("../../assets/images/Clip path group.png")}
-          style={styles.heroImage}
-          resizeMode="cover"
-        />
-
-        {/* Featured Products */}
-        <Text style={styles.sectionTitle}>Featured Products</Text>
-
-        <View style={styles.grid}>
-          {[
-            { title: "Live stock", icon: "🐄" },
-            { title: "Product", icon: "🍼" },
-            { title: "Birds", icon: "🐦" },
-            { title: "Farms", icon: "🌾" },
-            { title: "Cattle", icon: "🐂" },
-            { title: "Cattle", icon: "🐃" },
-          ].map((item, index) => (
-            <TouchableOpacity key={index} style={styles.card}>
-              <Text style={styles.emoji}>{item.icon}</Text>
-              <Text style={styles.cardText}>{item.title}</Text>
+        {/* Category Tabs */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.categoriesContainer}
+          contentContainerStyle={styles.categoriesContent}
+        >
+          {categories.map((category) => (
+            <TouchableOpacity
+              key={category}
+              onPress={() => setSelectedCategory(category)}
+              style={[
+                styles.categoryButton,
+                selectedCategory === category && styles.categoryButtonActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category && styles.categoryTextActive,
+                ]}
+              >
+                {category}
+              </Text>
             </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Food Grid */}
+        <View style={styles.foodGrid}>
+          {foodItems.map((item) => (
+            <View key={item.id} style={styles.foodCard}>
+              <View style={styles.imageContainer}>
+                {/* Replace with actual Image component */}
+                <View style={styles.imagePlaceholder}>
+                  <Text style={styles.burgerEmoji}>🍔</Text>
+                </View>
+              </View>
+              <View style={styles.cardContent}>
+                <Text style={styles.foodName}>{item.name}</Text>
+                <Text style={styles.foodDescription}>{item.description}</Text>
+                <View style={styles.cardFooter}>
+                  <View style={styles.ratingContainer}>
+                    <Ionicons name="star" size={14} color="#FFA500" />
+                    <Text style={styles.rating}>{item.rating}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+                    <Ionicons
+                      name={favorites.has(item.id) ? 'heart' : 'heart-outline'}
+                      size={22}
+                      color={favorites.has(item.id) ? '#EF2A39' : '#666'}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
           ))}
         </View>
       </ScrollView>
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   header: {
-    marginTop: 40,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingHorizontal: 16,
+    paddingTop: 50,
+    paddingBottom: 20,
   },
-  logo: { width: 90, height: 80 },
-
-  searchContainer: {
-    marginTop: 15,
-    marginHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#f8f8f8",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+  headerLeft: {
+    flex: 1,
   },
-  searchInput: { flex: 1, fontSize: 16, color: "#333" },
-
-  heroImage: {
-    width: "100%",
-    height: 160,
-    borderRadius: 8,
-    marginTop: 15,
+  logo: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#2C2C2C',
+    fontFamily: 'cursive',
   },
-
-  sectionTitle: {
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 20,
-    color: "#6B5F4A",
-  },
-
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    marginTop: 15,
-    paddingBottom: 40,
-  },
-  card: {
-    width: 100,
-    height: 100,
-    backgroundColor: "#D8CFB0",
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
-    margin: 8,
-  },
-  emoji: { fontSize: 26 },
-  cardText: {
-    marginTop: 5,
+  tagline: {
     fontSize: 14,
-    color: "#5A5142",
-    fontWeight: "500",
+    color: '#666',
+    marginTop: 4,
   },
-
-  sidebar: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: width * 0.6,
-    height: "100%",
-    backgroundColor: "rgba(0,0,0,0.9)",
-    paddingTop: 120,
-    paddingHorizontal: 25,
-    zIndex: 10,
+  profilePic: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: 'hidden',
   },
-  menuItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 20,
+  profilePlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#E0E0E0',
   },
-  menuLabel: {
-    color: "#fff",
+  searchRow: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    gap: 12,
+    marginBottom: 20,
+  },
+  searchContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+  },
+  searchInput: {
+    flex: 1,
     fontSize: 16,
-    fontWeight: "500",
-    marginLeft: 18,
+    color: '#2C2C2C',
   },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    backgroundColor: "rgba(0,0,0,0.3)",
-    zIndex: 5,
+  menuButton: {
+    backgroundColor: '#EF2A39',
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  categoriesContainer: {
+    marginBottom: 20,
+  },
+  categoriesContent: {
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  categoryButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 10,
+    borderRadius: 20,
+    backgroundColor: '#F5F5F5',
+    marginRight: 12,
+  },
+  categoryButtonActive: {
+    backgroundColor: '#EF2A39',
+  },
+  categoryText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+  },
+  categoryTextActive: {
+    color: '#fff',
+  },
+  foodGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    gap: 16,
+    paddingBottom: 100,
+  },
+  foodCard: {
+    width: (width - 48) / 2,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 140,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    overflow: 'hidden',
+  },
+  imagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#FFF5E6',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  burgerEmoji: {
+    fontSize: 60,
+  },
+  cardContent: {
+    padding: 12,
+  },
+  foodName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2C2C2C',
+    marginBottom: 4,
+  },
+  foodDescription: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 12,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  rating: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2C2C2C',
   },
 });
