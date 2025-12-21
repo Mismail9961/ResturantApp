@@ -132,7 +132,7 @@ export default function CheckoutScreen() {
         </View>
 
         <TouchableOpacity style={styles.payButton}>
-          <Text style={styles.payText}>
+          <Text style={styles.payText} onPress={() => router.push("/success/page")}>
             {selectedPayment === "cod" ? "Place Order" : "Pay Now"}
           </Text>
         </TouchableOpacity>
