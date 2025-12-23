@@ -1,188 +1,229 @@
-import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { useState } from "react";
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
   View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Dimensions,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 
-export default function Cart() {
-  const cartItems = [
-    {
-      id: 1,
-      name: "Product Name",
-      price: 3.99,
-      image: require("../../assets/images/logo.png"), // using existing logo as placeholder
-    },
-    {
-      id: 2,
-      name: "Product Name",
-      price: 3.99,
-      image: require("../../assets/images/logo.png"),
-    },
-    {
-      id: 3,
-      name: "Product Name",
-      price: 3.99,
-      image: require("../../assets/images/logo.png"),
-    },
-    {
-      id: 4,
-      name: "Product Name",
-      price: 3.99,
-      image: require("../../assets/images/logo.png"),
-    },
+const { width } = Dimensions.get("window");
+
+export default function FoodgoApp() {
+  const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [favorites, setFavorites] = useState<Set<number>>(new Set());
+
+  const categories = ["All", "Combos", "Sliders", "Chicken"];
+
+  const foodItems = [
+    { id: 1, name: "Cheeseburger", description: "Wendy's Burger", rating: 4.9 },
+    { id: 2, name: "Hamburger", description: "Veggie Burger", rating: 4.8 },
+    { id: 3, name: "Hamburger", description: "Chicken Burger", rating: 4.6 },
+    { id: 4, name: "Hamburger", description: "Fried Chicken Burger", rating: 4.5 },
   ];
 
-  const total = cartItems.reduce((acc, item) => acc + item.price, 0);
+  const toggleFavorite = (id: number) => {
+    setFavorites((prev) => {
+      const updated = new Set(prev);
+      updated.has(id) ? updated.delete(id) : updated.add(id);
+      return updated;
+    });
+  };
+
+  /** ✅ EXPO ROUTER SAFE NAVIGATION */
+const handleProductPress = (id: number) => {
+  router.push(`/products/${id}` as any);
+};
+
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity>
-          <Ionicons name="menu" size={24} color="#000" />
-        </TouchableOpacity>
-        <Image
-          source={require("../../assets/images/logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Ionicons name="cart-outline" size={22} color="#B7A97A" />
-      </View>
-
-      {/* Title */}
-      <Text style={styles.title}>My Cart</Text>
-
       <ScrollView showsVerticalScrollIndicator={false}>
-        {cartItems.map((item) => (
-          <View key={item.id} style={styles.card}>
-            <Image source={item.image} style={styles.image} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.price}>${item.price.toFixed(2)}</Text>
-            </View>
-            <View style={styles.counter}>
-              <TouchableOpacity style={styles.counterButton}>
-                <Ionicons name="remove-outline" size={16} color="#000" />
-              </TouchableOpacity>
-              <Text style={styles.counterText}>1</Text>
-              <TouchableOpacity style={styles.counterButton}>
-                <Ionicons name="add-outline" size={16} color="#000" />
-              </TouchableOpacity>
-            </View>
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.logo}>Foodgo</Text>
+            <Text style={styles.tagline}>Order your favourite food!</Text>
           </View>
-        ))}
-
-        {/* Total */}
-        <View style={styles.totalRow}>
-          <Text style={styles.totalText}>Total</Text>
-          <Text style={styles.totalAmount}>${total.toFixed(2)}</Text>
+          <View style={styles.profilePlaceholder} />
         </View>
 
-        {/* Buy Now Button */}
-        <TouchableOpacity style={styles.buyButton}>
-          <Text style={styles.buyText}>Buy Now</Text>
-        </TouchableOpacity>
+        {/* Search */}
+        <View style={styles.searchRow}>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search-outline" size={20} color="#666" />
+            <TextInput placeholder="Search" style={styles.searchInput} />
+          </View>
+          <TouchableOpacity style={styles.menuButton}>
+            <Ionicons name="menu" size={24} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Categories */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat}
+              onPress={() => setSelectedCategory(cat)}
+              style={[
+                styles.categoryButton,
+                selectedCategory === cat && styles.categoryButtonActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === cat && styles.categoryTextActive,
+                ]}
+              >
+                {cat}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Food Grid */}
+        <View style={styles.foodGrid}>
+          {foodItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.foodCard}
+              onPress={() => handleProductPress(item.id)}
+            >
+              <View style={styles.imagePlaceholder}>
+                <Text style={{ fontSize: 48 }}>🍔</Text>
+              </View>
+
+              <View style={styles.cardContent}>
+                <Text style={styles.foodName}>{item.name}</Text>
+                <Text style={styles.foodDescription}>{item.description}</Text>
+
+                <View style={styles.cardFooter}>
+                  <View style={styles.ratingContainer}>
+                    <Ionicons name="star" size={14} color="#FFA500" />
+                    <Text>{item.rating}</Text>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(item.id);
+                    }}
+                  >
+                    <Ionicons
+                      name={favorites.has(item.id) ? "heart" : "heart-outline"}
+                      size={22}
+                      color={favorites.has(item.id) ? "#EF2A39" : "#666"}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
 }
 
+/* ================= STYLES ================= */
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: 16,
-  },
+  container: { flex: 1, backgroundColor: "#fff" },
+
   header: {
-    marginTop: 40,
+    padding: 16,
+    paddingTop: 50,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
   },
-  logo: {
-    width: 120,
-    height: 50,
+
+  logo: { fontSize: 32, fontWeight: "bold" },
+  tagline: { color: "#666", marginTop: 4 },
+
+  profilePlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#ddd",
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
-    color: "#B7A97A",
-    marginVertical: 20,
-  },
-  card: {
+
+  searchRow: {
     flexDirection: "row",
-    backgroundColor: "#F8F8F8",
+    paddingHorizontal: 16,
+    gap: 12,
+    marginBottom: 20,
+  },
+
+  searchContainer: {
+    flex: 1,
+    flexDirection: "row",
+    backgroundColor: "#f5f5f5",
     borderRadius: 12,
     padding: 12,
+    gap: 8,
+  },
+
+  searchInput: { flex: 1 },
+
+  menuButton: {
+    backgroundColor: "#EF2A39",
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 12,
   },
-  image: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    marginRight: 10,
+
+  categoryButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 20,
+    marginHorizontal: 8,
   },
-  name: {
-    fontSize: 14,
-    color: "#333",
-    fontWeight: "500",
-  },
-  price: {
-    fontSize: 14,
-    color: "#000",
-    marginTop: 4,
-    fontWeight: "bold",
-  },
-  counter: {
+
+  categoryButtonActive: { backgroundColor: "#EF2A39" },
+  categoryText: { color: "#666" },
+  categoryTextActive: { color: "#fff" },
+
+  foodGrid: {
     flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    flexWrap: "wrap",
+    padding: 16,
+    gap: 16,
+    paddingBottom: 120,
+  },
+
+  foodCard: {
+    width: (width - 48) / 2,
+    borderRadius: 16,
     backgroundColor: "#fff",
+    elevation: 3,
   },
-  counterButton: {
-    paddingHorizontal: 6,
+
+  imagePlaceholder: {
+    height: 140,
+    backgroundColor: "#FFF5E6",
+    justifyContent: "center",
+    alignItems: "center",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
-  counterText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#000",
-  },
-  totalRow: {
+
+  cardContent: { padding: 12 },
+  foodName: { fontWeight: "600" },
+  foodDescription: { fontSize: 12, color: "#666", marginVertical: 6 },
+
+  cardFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 15,
-  },
-  totalText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-  totalAmount: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000",
-  },
-  buyButton: {
-    backgroundColor: "#C2B89B",
-    borderRadius: 10,
-    paddingVertical: 14,
     alignItems: "center",
-    marginBottom: 30,
   },
-  buyText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
+
+  ratingContainer: { flexDirection: "row", gap: 4 },
 });
