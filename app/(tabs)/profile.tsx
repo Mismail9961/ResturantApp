@@ -1,229 +1,207 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  TextInput,
+  Image,
   TouchableOpacity,
-  Dimensions,
+  ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
 
-const { width } = Dimensions.get("window");
-
-export default function FoodgoApp() {
-  const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [favorites, setFavorites] = useState<Set<number>>(new Set());
-
-  const categories = ["All", "Combos", "Sliders", "Chicken"];
-
-  const foodItems = [
-    { id: 1, name: "Cheeseburger", description: "Wendy's Burger", rating: 4.9 },
-    { id: 2, name: "Hamburger", description: "Veggie Burger", rating: 4.8 },
-    { id: 3, name: "Hamburger", description: "Chicken Burger", rating: 4.6 },
-    { id: 4, name: "Hamburger", description: "Fried Chicken Burger", rating: 4.5 },
-  ];
-
-  const toggleFavorite = (id: number) => {
-    setFavorites((prev) => {
-      const updated = new Set(prev);
-      updated.has(id) ? updated.delete(id) : updated.add(id);
-      return updated;
-    });
-  };
-
-  /** ✅ EXPO ROUTER SAFE NAVIGATION */
-const handleProductPress = (id: number) => {
-  router.push(`/products/${id}` as any);
-};
-
-
+export default function ProfileScreen() {
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.logo}>Foodgo</Text>
-            <Text style={styles.tagline}>Order your favourite food!</Text>
-          </View>
-          <View style={styles.profilePlaceholder} />
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Ionicons name="arrow-back" size={24} color="#fff" />
+        </TouchableOpacity>
 
-        {/* Search */}
-        <View style={styles.searchRow}>
-          <View style={styles.searchContainer}>
-            <Ionicons name="search-outline" size={20} color="#666" />
-            <TextInput placeholder="Search" style={styles.searchInput} />
-          </View>
-          <TouchableOpacity style={styles.menuButton}>
-            <Ionicons name="menu" size={24} color="#fff" />
+
+      </View>
+
+      {/* Profile Image */}
+      <View style={styles.avatarWrapper}>
+        <Image
+          source={{
+            uri: "https://i.pravatar.cc/300",
+          }}
+          style={styles.avatar}
+        />
+      </View>
+
+      {/* Card */}
+      <ScrollView contentContainerStyle={styles.card}>
+        <Input label="Name" value="Sophia Patel" />
+        <Input label="Email" value="sophiapatel@gmail.com" />
+        <Input
+          label="Delivery address"
+          value="123 Main St Apartment 4A, New York, NY"
+        />
+        <Input label="Password" value="•••••••••" secure />
+
+        <Divider />
+
+        <MenuItem label="Payment Details" />
+        <MenuItem label="Order history" />
+
+        {/* Buttons */}
+        <View style={styles.buttonRow}>
+          <TouchableOpacity style={styles.editBtn}>
+            <Ionicons name="create-outline" size={18} color="#fff" />
+            <Text style={styles.editText}>Edit Profile</Text>
           </TouchableOpacity>
-        </View>
 
-        {/* Categories */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat}
-              onPress={() => setSelectedCategory(cat)}
-              style={[
-                styles.categoryButton,
-                selectedCategory === cat && styles.categoryButtonActive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  selectedCategory === cat && styles.categoryTextActive,
-                ]}
-              >
-                {cat}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-
-        {/* Food Grid */}
-        <View style={styles.foodGrid}>
-          {foodItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.foodCard}
-              onPress={() => handleProductPress(item.id)}
-            >
-              <View style={styles.imagePlaceholder}>
-                <Text style={{ fontSize: 48 }}>🍔</Text>
-              </View>
-
-              <View style={styles.cardContent}>
-                <Text style={styles.foodName}>{item.name}</Text>
-                <Text style={styles.foodDescription}>{item.description}</Text>
-
-                <View style={styles.cardFooter}>
-                  <View style={styles.ratingContainer}>
-                    <Ionicons name="star" size={14} color="#FFA500" />
-                    <Text>{item.rating}</Text>
-                  </View>
-
-                  <TouchableOpacity
-                    onPress={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(item.id);
-                    }}
-                  >
-                    <Ionicons
-                      name={favorites.has(item.id) ? "heart" : "heart-outline"}
-                      size={22}
-                      color={favorites.has(item.id) ? "#EF2A39" : "#666"}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+          <TouchableOpacity style={styles.logoutBtn}>
+            <Text style={styles.logoutText}>Log out</Text>
+            <Ionicons name="log-out-outline" size={18} color="#EF2A39" />
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
   );
 }
 
-/* ================= STYLES ================= */
+/* ---------- Components ---------- */
+
+const Input = ({
+  label,
+  value,
+  secure,
+}: {
+  label: string;
+  value: string;
+  secure?: boolean;
+}) => (
+  <View style={styles.inputGroup}>
+    <Text style={styles.label}>{label}</Text>
+    <View style={styles.input}>
+      <Text>{secure ? "••••••••" : value}</Text>
+      {secure && <Ionicons name="lock-closed-outline" size={16} color="#999" />}
+    </View>
+  </View>
+);
+
+const MenuItem = ({ label }: { label: string }) => (
+  <TouchableOpacity style={styles.menuItem}>
+    <Text style={styles.menuText}>{label}</Text>
+    <Ionicons name="chevron-forward" size={20} color="#999" />
+  </TouchableOpacity>
+);
+
+const Divider = () => <View style={styles.divider} />;
+
+/* ---------- Styles ---------- */
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: {
+    flex: 1,
+    backgroundColor: "#EF2A39",
+  },
 
   header: {
-    padding: 16,
     paddingTop: 50,
+    paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
   },
 
-  logo: { fontSize: 32, fontWeight: "bold" },
-  tagline: { color: "#666", marginTop: 4 },
+  avatarWrapper: {
+    alignItems: "center",
+    marginTop: 20,
+    zIndex: 10,
+  },
 
-  profilePlaceholder: {
-    width: 48,
-    height: 48,
+  avatar: {
+    width: 110,
+    height: 110,
     borderRadius: 24,
-    backgroundColor: "#ddd",
+    borderWidth: 4,
+    borderColor: "#fff",
+    marginBottom: 15,
   },
 
-  searchRow: {
+  card: {
+    backgroundColor: "#fff",
+    marginTop: -50,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    padding: 20,
+    paddingTop: 70,
+  },
+
+  inputGroup: {
+    marginBottom: 16,
+  },
+
+  label: {
+    fontSize: 12,
+    color: "#999",
+    marginBottom: 6,
+  },
+
+  input: {
+    backgroundColor: "#F5F5F5",
+    borderRadius: 14,
+    padding: 14,
     flexDirection: "row",
-    paddingHorizontal: 16,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+
+  divider: {
+    height: 1,
+    backgroundColor: "#eee",
+    marginVertical: 20,
+  },
+
+  menuItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+  },
+
+  menuText: {
+    fontSize: 15,
+  },
+
+  buttonRow: {
+    flexDirection: "row",
     gap: 12,
-    marginBottom: 20,
+    marginTop: 30,
   },
 
-  searchContainer: {
+  editBtn: {
     flex: 1,
+    backgroundColor: "#2E2E2E",
+    borderRadius: 14,
+    paddingVertical: 14,
     flexDirection: "row",
-    backgroundColor: "#f5f5f5",
-    borderRadius: 12,
-    padding: 12,
+    justifyContent: "center",
+    alignItems: "center",
     gap: 8,
   },
 
-  searchInput: { flex: 1 },
+  editText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
 
-  menuButton: {
-    backgroundColor: "#EF2A39",
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+  logoutBtn: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: "#EF2A39",
+    borderRadius: 14,
+    paddingVertical: 14,
+    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    gap: 8,
   },
 
-  categoryButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: "#f5f5f5",
-    borderRadius: 20,
-    marginHorizontal: 8,
+  logoutText: {
+    color: "#EF2A39",
+    fontWeight: "600",
   },
-
-  categoryButtonActive: { backgroundColor: "#EF2A39" },
-  categoryText: { color: "#666" },
-  categoryTextActive: { color: "#fff" },
-
-  foodGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    padding: 16,
-    gap: 16,
-    paddingBottom: 120,
-  },
-
-  foodCard: {
-    width: (width - 48) / 2,
-    borderRadius: 16,
-    backgroundColor: "#fff",
-    elevation: 3,
-  },
-
-  imagePlaceholder: {
-    height: 140,
-    backgroundColor: "#FFF5E6",
-    justifyContent: "center",
-    alignItems: "center",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-  },
-
-  cardContent: { padding: 12 },
-  foodName: { fontWeight: "600" },
-  foodDescription: { fontSize: 12, color: "#666", marginVertical: 6 },
-
-  cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  ratingContainer: { flexDirection: "row", gap: 4 },
 });

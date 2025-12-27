@@ -6,6 +6,7 @@ import { View, StyleSheet } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 
+
 export default function TabsLayout() {
   return (
     <Tabs
@@ -60,12 +61,12 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="wishlist"
+        name="chat"
         options={{
           tabBarIcon: ({ focused }) => (
             <View style={[styles.iconContainer, focused && styles.active]}>
-              <Ionicons
-                name="heart"
+              <Entypo
+                name="chat"
                 size={22}
                 color={focused ? "#EF2A39" : "#fff"}
               />
