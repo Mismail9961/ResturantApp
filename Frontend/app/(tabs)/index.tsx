@@ -7,14 +7,18 @@ import {
   TextInput,
   TouchableOpacity,
   Dimensions,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/lib/auth-context";
+import { API_BASE } from "@/constants/Api";
 
 const { width } = Dimensions.get("window");
 
 export default function FoodgoApp() {
   const router = useRouter();
+  const { user } = useAuth();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [favorites, setFavorites] = useState<Set<number>>(new Set());
 
@@ -50,7 +54,29 @@ const handleProductPress = (id: number) => {
             <Text style={styles.logo}>Foodgo</Text>
             <Text style={styles.tagline}>Order your favourite food!</Text>
           </View>
-          <View style={styles.profilePlaceholder} />
+          <TouchableOpacity
+            style={styles.profileSection}
+            onPress={() => router.push("/(tabs)/profile" as any)}
+            activeOpacity={0.8}
+          >
+            {user?.avatar ? (
+              <Image
+                source={{ uri: user.avatar.startsWith("/") ? `${API_BASE}${user.avatar}` : user.avatar }}
+                style={styles.profileAvatar}
+              />
+            ) : (
+              <View style={styles.profileInitials}>
+                <Text style={styles.profileInitialsText}>
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "?"}
+                </Text>
+              </View>
+            )}
+            {user?.name && (
+              <Text style={styles.profileName} numberOfLines={1}>
+                {user.name}
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
 
         {/* Search */}
@@ -145,11 +171,33 @@ const styles = StyleSheet.create({
   logo: { fontSize: 32, fontWeight: "bold" },
   tagline: { color: "#666", marginTop: 4 },
 
-  profilePlaceholder: {
+  profileSection: {
+    alignItems: "center",
+    gap: 4,
+  },
+  profileAvatar: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: "#ddd",
+  },
+  profileInitials: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#EF2A39",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  profileInitialsText: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  profileName: {
+    fontSize: 11,
+    color: "#666",
+    maxWidth: 60,
+    textAlign: "center",
   },
 
   searchRow: {

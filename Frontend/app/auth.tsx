@@ -18,6 +18,7 @@ const { width } = Dimensions.get("window");
 
 export default function AuthScreen() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [hidePassword, setHidePassword] = useState(true);
@@ -26,16 +27,28 @@ export default function AuthScreen() {
   const router = useRouter();
 
   const handleAuth = async () => {
-    if (!email || !password) return setError("Please fill in all fields.");
-    if (password.length < 6)
+    if (isSignUp && !name) {
+      return setError("Please fill in all fields.");
+    }
+
+    if (!email || !password) {
+      return setError("Please fill in all fields.");
+    }
+
+    if (password.length < 6) {
       return setError("Password must be at least 6 characters long.");
+    }
 
     setError(null);
-    const result = isSignUp
-      ? await signUp(email, password)
-      : await signIn(email, password);
 
-    if (result) return setError(result);
+    const result = isSignUp
+      ? await signUp(name.trim(), email.trim(), password)
+      : await signIn(email.trim(), password);
+
+    if (result) {
+      return setError(result);
+    }
+
     router.replace("/(tabs)");
   };
 
@@ -50,7 +63,7 @@ export default function AuthScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ✅ Logo Section */}
+          {/* Logo Section */}
           <View style={styles.logoContainer}>
             <Image
               source={require("../assets/images/logo.png")}
@@ -62,8 +75,28 @@ export default function AuthScreen() {
             </Text>
           </View>
 
-          {/* ✅ Auth Card */}
+          {/* Auth Card */}
           <View style={styles.card}>
+            {isSignUp && (
+              <TextInput
+                label="Full Name"
+                value={name}
+                onChangeText={setName}
+                mode="outlined"
+                style={styles.input}
+                autoCapitalize="words"
+                autoCorrect={false}
+                theme={{
+                  colors: {
+                    primary: "#B9B093",
+                    outline: "#B9B093",
+                    text: "#000",
+                    placeholder: "#999",
+                  },
+                }}
+              />
+            )}
+
             <TextInput
               label="Email"
               value={email}
@@ -76,8 +109,8 @@ export default function AuthScreen() {
               autoCorrect={false}
               theme={{
                 colors: {
-                  primary: "#B9B093", // Focused border & label
-                  outline: "#B9B093", // Default border
+                  primary: "#B9B093",
+                  outline: "#B9B093",
                   text: "#000",
                   placeholder: "#999",
                 },
@@ -160,7 +193,7 @@ const styles = StyleSheet.create({
   appSubtitle: {
     color: "#B9B093",
     fontSize: 16,
-    fontFamily: "Franklin Gothic Demi", // Make sure it's loaded via expo-font
+    fontFamily: "Franklin Gothic Demi",
     lineHeight: 26,
     textAlign: "center",
     marginTop: 7,

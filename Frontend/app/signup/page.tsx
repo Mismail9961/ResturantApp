@@ -6,26 +6,56 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/lib/auth-context";
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { signUp } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignUp = () => {
-    console.log({ name, email, password });
+  const handleSignUp = async () => {
+    // Basic validation
+    if (!name || !email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert("Error", "Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const error = await signUp(name.trim(), email.trim(), password);
+
+      if (error) {
+        Alert.alert("Signup Failed", error);
+        return;
+      }
+
+      Alert.alert("Success", "Account created successfully!");
+      router.replace("/(tabs)" as any);
+    } catch (error: any) {
+      const errorMessage = error?.message || "Something went wrong. Check your connection.";
+      Alert.alert("Signup Failed", errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>
-          Sign up to get started
-        </Text>
+        <Text style={styles.subtitle}>Sign up to get started</Text>
 
         <TextInput
           placeholder="Full Name"
@@ -33,6 +63,7 @@ export default function SignUpScreen() {
           style={styles.input}
           value={name}
           onChangeText={setName}
+          autoCorrect={false}
         />
 
         <TextInput
@@ -42,10 +73,12 @@ export default function SignUpScreen() {
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
         />
 
         <TextInput
-          placeholder="Password"
+          placeholder="Password (min 6 characters)"
           placeholderTextColor="#999"
           style={styles.input}
           value={password}
@@ -53,20 +86,31 @@ export default function SignUpScreen() {
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-          <Text style={styles.buttonText}>Sign Up</Text>
+        <TouchableOpacity 
+          style={[styles.button, loading && { opacity: 0.7 }]} 
+          onPress={handleSignUp}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#ffffff" />
+          ) : (
+            <Text style={styles.buttonText}>Sign Up</Text>
+          )}
         </TouchableOpacity>
 
         <Text style={styles.footerText}>
           Already have an account?{" "}
-          <Text style={styles.link} onPress={() => router.push("/login/page")}>Login</Text>
+          <Text 
+            style={styles.link} 
+            onPress={() => router.push("/login/page" as any)}
+          >
+            Login
+          </Text>
         </Text>
       </View>
     </SafeAreaView>
   );
 }
-
-/* ---------- Styles ---------- */
 
 const styles = StyleSheet.create({
   container: {
@@ -111,6 +155,8 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     marginTop: 10,
+    height: 55,
+    justifyContent: "center",
   },
   buttonText: {
     color: "#ffffff",

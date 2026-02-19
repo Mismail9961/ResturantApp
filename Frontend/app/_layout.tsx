@@ -69,7 +69,7 @@ function AppLayout() {
     if (isLoadingUser) return;
 
     if (!user) {
-      router.replace("/auth");
+      router.replace("/login/page");
     } else {
       router.replace("/(tabs)");
     }
