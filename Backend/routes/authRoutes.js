@@ -19,7 +19,13 @@ const signupValidation = [
   body('email').isEmail().withMessage('Please provide a valid email'),
   body('password')
     .isLength({ min: 6 })
-    .withMessage('Password must be at least 6 characters')
+    .withMessage('Password must be at least 6 characters'),
+  body('phone').notEmpty().withMessage('Phone number is required'),
+  body('address.street').notEmpty().withMessage('Street address is required'),
+  body('address.city').notEmpty().withMessage('City is required'),
+  body('address.state').notEmpty().withMessage('State is required'),
+  body('address.zipCode').notEmpty().withMessage('Zip code is required'),
+  body('address.country').notEmpty().withMessage('Country is required'),
 ];
 
 const loginValidation = [

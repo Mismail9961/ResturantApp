@@ -14,7 +14,7 @@ exports.signup = async (req, res) => {
       });
     }
 
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, address } = req.body;
 
     // Check if user exists
     const existingUser = await User.findOne({ email });
@@ -30,7 +30,8 @@ exports.signup = async (req, res) => {
       name,
       email,
       password,
-      phone
+      phone,
+      address
     });
 
     sendTokenResponse(user, 201, res);
